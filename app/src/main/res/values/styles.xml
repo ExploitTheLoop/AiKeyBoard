@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Focused stroke color -->
+        <item name="boxStrokeColor">#FF5722</item> <!-- Color when focused -->
+
+        <!-- Adjust hint text colors -->
+        <item name="hintTextColor">@color/white</item>
+        <item name="android:textColorHint">#B0B0B0</item>
+
+        <!-- Set transparent background for the box -->
+        <item name="boxBackgroundColor">#00000000</item>
+    </style>
+
+
+</resources>

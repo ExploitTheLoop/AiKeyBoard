@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "822532374727",
+    "project_id": "ai-keyboard-c7523",
+    "storage_bucket": "ai-keyboard-c7523.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822532374727:android:6211c973f2bd8791693ee2",
+        "android_client_info": {
+          "package_name": "net.animetone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822532374727-34ma5p16eq30p7l9k0a1g19p25pd35kb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.animetone",
+            "certificate_hash": "1b8e6288c40a6dabefdf0341e766e65054d3068e"
+          }
+        },
+        {
+          "client_id": "822532374727-5vm7reud8d8d8cip17v20jdoln3ig7pj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7MsIpxl88A_kjmnfqpnLMdbVl0_wYCdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822532374727-5vm7reud8d8d8cip17v20jdoln3ig7pj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,172 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#212121"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title and Close Button Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Title -->
+        <TextView
+            android:paddingLeft="43dp"
+            android:id="@+id/titleText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="KEYBOARD SETUP"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+
+        <!-- Close Button -->
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/rounded_button_background"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:scaleType="center" />
+
+    </LinearLayout>
+
+    <TextView
+        android:maxWidth="250dp"
+        android:textStyle="bold"
+        android:id="@+id/subtitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="To use the App, please set up the AI Keyboard: Chatbot, Grammar"
+        android:textColor="#B0B0B0"
+        android:textSize="14sp" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/keyboardAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/aianim" />
+
+
+    <!-- Instructions -->
+    <TextView
+        android:textStyle="bold"
+        android:id="@+id/instruction1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="1. Please enable the AI Keyboard"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:background="@drawable/backgroundforintro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/transparentroundbackground"
+            android:clipToPadding="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/keyboardOption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AI Keyboard: Chatbot, Grammar"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/iconAnimation"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/ic_hand" />
+
+        </LinearLayout>
+
+        <!-- Enable Keyboard Button -->
+        <LinearLayout
+            android:id="@+id/enableKeyboardButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/sqaurebackkeyboardintro"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Click to settings"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Switch to Keyboard -->
+    <TextView
+        android:textStyle="bold"
+        android:id="@+id/instruction2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="2. Switch to AI Keyboard"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+
+    <!-- Switch Keyboard as LinearLayout -->
+    <LinearLayout
+        android:id="@+id/switchKeyboardButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/blueroundedbackground"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Click to settings"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

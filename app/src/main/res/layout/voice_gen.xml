@@ -1,0 +1,140 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:lottie="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <!-- Row with Round Layout, ImageViews, and LottieAnimationView aligned to the right -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
+
+            <!-- Round Layout -->
+            <FrameLayout
+                android:id="@+id/playLayout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/round_button_background"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:visibility="visible"
+                    android:layout_gravity="center"
+                    android:id="@+id/playText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="▶"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieProgress"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    app:lottie_autoPlay="false"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/loading" />
+            </FrameLayout>
+
+
+            <!-- Two LottieAnimations -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- First LottieAnimationView -->
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/downloadAnimation"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/share" />
+
+                <!-- Second LottieAnimationView -->
+                <com.airbnb.lottie.LottieAnimationView
+                    android:visibility="invisible"
+                    android:id="@+id/shareAnimation"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/share" />
+            </LinearLayout>
+
+
+            <!-- Right-aligned Lottie Animation and Token Count -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="right"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/token_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="8dp"
+                    android:gravity="center"
+                    android:text="100"
+                    android:textColor="#161515"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieAnimation"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/goldcointoken" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/gridview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:orientation="horizontal" />
+
+        <Spinner
+            android:id="@+id/languageSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/spinner_background"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
+
+</LinearLayout>

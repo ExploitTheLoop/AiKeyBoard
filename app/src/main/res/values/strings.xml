@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">AI Keyboard</string>
+    <string name="available_credits">Available Credits: %1$s</string>
+    <string name="used_credits">Used Credits: %1$d</string>
+    <string name="total_keystrokes">Total Keystrokes: %1$d</string>
+    <string name="words_typed">Words Typed: %1$d</string>
+    <string name="completion_clicks">Completion Clicks: %1$d</string>
+    <string name="login_register">Login / Register</string>
+    <string name="app_logo">App Logo</string>
+    <string name="text_transform_instruction">Set Prompt</string>
+    <string name="no_input_message">No Input Provided</string>
+    <string name="ai_error_message">Error processing your input</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Input_missing">Some inputs are missing. Please provide the necessary details.</string>
+</resources>
