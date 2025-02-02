@@ -565,7 +565,8 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
                 val jsonResponse = JSONObject(responseBody)
                 val audioUrl = jsonResponse.getString("audioFile")
                 //need to deduct credits based on payload
-                deductCreditsBasedOnCharacters(textfromkeyboard,creditsTextview)
+                deductCreditsBasedOnCharacterstransaction(textfromkeyboard,creditsTextview)
+              //  deductCreditsBasedOnCharacters(textfromkeyboard,creditsTextview)
                 onResult(ApiResult.Success(audioUrl))  // Success callback
             } else {
                 onResult(ApiResult.Error("API request failed: ${response.status.value}"))  // Failure callback
@@ -762,7 +763,44 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
             creditsTextView.text = ""
         }
     }
+//transaction method
+    private fun deductCreditsBasedOnCharacterstransaction(payload: String, creditsTextView: TextView) {
+        val trimmedPayload = payload.trim()
+        val characterCount = trimmedPayload.replace("\\s+".toRegex(), "").length
+        val creditsToDeduct = characterCount
 
+        val currentUser = mAuth.currentUser
+        if (currentUser != null) {
+            val userRef = db.collection("users").document(currentUser.uid)
+
+            // Use Firestore Transaction to prevent race conditions
+            db.runTransaction { transaction ->
+                val document = transaction.get(userRef)
+                if (!document.exists()) {
+                    throw Exception("User document does not exist")
+                }
+
+                val currentCredits = document.getLong("credits")?.toInt() ?: 0
+                if (currentCredits < creditsToDeduct) {
+                    throw Exception("Not enough credits") // Prevents negative balance
+                }
+
+                val updatedCredits = currentCredits - creditsToDeduct
+                transaction.update(userRef, "credits", updatedCredits)
+                updatedCredits // Return new credit balance
+            }.addOnSuccessListener { updatedCredits ->
+                creditsTextView.text = "$updatedCredits"
+            }.addOnFailureListener { e ->
+                if (e.message == "Not enough credits") {
+                    creditsTextView.text = "Not enough credits!"
+                } else {
+                    Log.e("FirebaseCredits", "Error updating credits", e)
+                }
+            }
+        } else {
+            creditsTextView.text = ""
+        }
+    }
 
 
     private fun redirectToSignInActivity() {
@@ -918,15 +956,16 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
      * Called by the caps button.
      */
     private fun toggleCaps(v: View) {
+        vibrate()
         capsOn = !capsOn
         for (row in mainView.findViewById<LinearLayout>(R.id.keyboard).children) {
             for (button in (row as LinearLayout).children) {
                 if (button is Button && button.text.length == 1) {
                     if (capsOn) {
-                        vibrate()
+                       // vibrate()
                         button.text = button.text.toString().uppercase()
                     } else {
-                        vibrate()
+                      //  vibrate()
                         button.text = button.text.toString().lowercase()
                     }
                 }

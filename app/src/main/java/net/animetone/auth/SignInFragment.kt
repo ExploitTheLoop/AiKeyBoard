@@ -115,7 +115,8 @@ class SignInFragment : Fragment() {
             if (task.isSuccessful) {
                 // Successfully signed in
                 val user = mAuth.currentUser
-                grantFreeCredit(user)  // Grant credits to the user
+                //grantFreeCredit(user)  // Grant credits to the user
+                grantFreeCreditTrans(user)
                 // Redirect to HomeActivity
                 redirectToHomeActivity()
             } else {
@@ -151,6 +152,29 @@ class SignInFragment : Fragment() {
         }
     }
 
+    private fun grantFreeCreditTrans(user: FirebaseUser?) {
+        if (user == null) return
+
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+
+        db.runTransaction { transaction ->
+            val document = transaction.get(userRef)
+
+            if (!document.exists()) {
+                // New user, grant initial credit
+                val initialCredits = hashMapOf(
+                    "email" to user.email,
+                    "credits" to 300 // Grant 100 free credits only once
+                )
+                transaction.set(userRef, initialCredits)
+            }
+        }.addOnSuccessListener {
+            Log.d("GrantCredit", "Initial credits granted to ${user.email}")
+        }.addOnFailureListener { e ->
+            Log.e("GrantCredit", "Error granting credits", e)
+        }
+    }
     private fun redirectToHomeActivity() {
         // Start the HomeActivity
         val intent = Intent(requireContext(), PredictionSettingsListActivity::class.java)
