@@ -1,4 +1,4 @@
-# AI Keyboard 2.0 🚀  
+# AI Keyboard 🚀  
 
 An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Speech (TTS) functionality, and an enhanced typing experience. Built on [KeyboardGPT](https://github.com/bOsowski/KeyboardGPT) with **Llama AI** for intelligent text modification and **Murf API** for natural-sounding TTS.  
 
