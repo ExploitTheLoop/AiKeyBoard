@@ -13,10 +13,14 @@ class KeyboardGPTApp: Application() {
 
     lateinit var predictionSettingsViewModel: PredictionSettingsViewModel
     lateinit var statsViewModel: StatsViewModel
+    lateinit var activityTracker: ActivityTracker
 
     override fun onCreate() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
+
+        activityTracker = ActivityTracker()
+        registerActivityLifecycleCallbacks(activityTracker)
 
         // Instantiating here to allow for the earliest possible instantiation time
         predictionSettingsViewModel = getViewModelProvider()[PredictionSettingsViewModel::class.java]

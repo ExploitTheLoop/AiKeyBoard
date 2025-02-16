@@ -6,6 +6,8 @@ import android.app.VoiceInteractor
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentUris
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -30,8 +32,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.ExtractedTextRequest
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.GridView
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Spinner
@@ -39,6 +43,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.view.children
+import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -89,6 +94,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
     lateinit var primaryKeyboard: LinearLayout
     lateinit var symbolsKeyboard: LinearLayout
     lateinit var voicegen: LinearLayout
+    lateinit var emojiview: LinearLayout
    // lateinit var spinner: Spinner
 
     // Declare the ImageButton as a global variable
@@ -112,6 +118,8 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
     private lateinit var db: FirebaseFirestore
 
     private var isVoiceMode = false // State variable to track current mode
+    private var isEmojiMode = false // State variable to track current mode
+
     private lateinit var languageSpinner: Spinner
     private var selectedLanguage: String = ""
     private lateinit var gridview: RecyclerView
@@ -125,6 +133,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
     private var selectedItem: ListItem? = null
     private lateinit var voiceactoradapter: voiceactorAdapter
     private lateinit var playButton: FrameLayout
+    private lateinit var activityTracker: ActivityTracker
 
     private val englishData = listOf(
         ListItem(R.raw.female, "Ruby"),
@@ -169,6 +178,8 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
 
         // Initialize ClipboardManager
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        activityTracker = (applicationContext as KeyboardGPTApp).activityTracker
 
         clipboardCard = mainView.findViewById(R.id.clipboardcard)
         clipboardButton = mainView.findViewById(R.id.clipboarbutton)
@@ -243,17 +254,38 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
             R.layout.voice_gen, null
         ) as ViewGroup).findViewById(R.id.keyboard)
         (voicegen.parent as ViewGroup).removeView(voicegen)
+        emojiview = (layoutInflater.inflate(
+            R.layout.emoji_picker_view, null
+        ) as ViewGroup).findViewById(R.id.keyboard)
+        (emojiview.parent as ViewGroup).removeView(emojiview)
 
         loadPredictionSettingsforrecycleview(Nodata,recyclerView)
         modifySystemNavBar()
 
-        clipboardManager.addPrimaryClipChangedListener {
-            updateClipboardContent(clipboardManager, clipboardCard, clipboardText)
-        }
+       clipboardManager.addPrimaryClipChangedListener {
+           updateClipboardContent(clipboardManager, clipboardCard, clipboardText)
+       }
 
-        clipboardButton.setOnClickListener {
-            pasteClipboardContentToSystemField(clipboardManager,clipboardCard)
-        }
+        // Listen for clipboard changes
+    //  clipboardManager.addPrimaryClipChangedListener {
+    //      if (isEmojiMode) {
+    //          // Skip clipboard update if emoji picker is rendering
+    //          return@addPrimaryClipChangedListener
+    //      }
+
+    //      val clip = clipboardManager.primaryClip
+    //      val item = clip?.getItemAt(0)
+    //      val text = item?.coerceToText(applicationContext)
+
+    //      // If clipboard content has changed, update clipboard bubble and content
+    //      if (text != clipboardText) {
+    //          updateClipboardContent(clipboardManager, clipboardCard, clipboardText)
+    //      }
+    //  }
+
+    //  clipboardButton.setOnClickListener {
+    //      pasteClipboardContentToSystemField(clipboardManager,clipboardCard)
+    //  }
 
         startUpdateCheckLoop()
 
@@ -334,7 +366,16 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
                                         // Play audio if successful
                                         playAudio(result.audioUrl)
                                         // Example usage after sharing or when you need to clean up
-                                        deleteAudioFile("downloaded_audio.mp3", this@KeyboardService)
+                                       // deleteAudioFile("downloaded_audio.mp3", this@KeyboardService)
+
+                                        deleteAudioFile(this@KeyboardService) { success ->
+                                            if (success) {
+                                                Log.d("DeleteAudio", "File deleted successfully")
+                                            } else {
+                                                Log.e("DeleteAudio", "File deletion failed")
+                                            }
+                                        }
+
                                     }
                                     is ApiResult.Error -> {
                                         // Handle error
@@ -374,14 +415,14 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
         downloadButton.setOnClickListener {
             if (!audioUrl.isNullOrEmpty()) { // Check if audioUrl is valid
                 Toast.makeText(this, "Kindly wait as the download is in progress. You can check the system notification for updates.", Toast.LENGTH_LONG).show()
-                deleteAudioFile("downloaded_audio.mp3", this@KeyboardService)
+             //   deleteAudioFile("downloaded_audio.mp3", this@KeyboardService)
                 downloadAudioFile(audioUrl!!, this) { fileUri ->
                     if (fileUri != null) {
                         // Notify the user about the successful download
                         Toast.makeText(this, "Audio downloaded to: $fileUri", Toast.LENGTH_LONG).show()
 
                         // Example: Play the file or share it
-                        shareAudio() // Uncomment if sharing is needed
+                     shareAudio() // Uncomment if sharing is needed
                     } else {
                         Toast.makeText(this, "Failed to download audio.", Toast.LENGTH_SHORT).show()
                     }
@@ -401,6 +442,13 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
 
         }
 
+        val emojiPickerView = emojiview.findViewById<EmojiPickerView>(R.id.emoji_picker)
+        emojiPickerView.setOnEmojiPickedListener { emoji ->
+            currentInputConnection?.commitText(emoji.emoji, 1) // Insert emoji
+        }
+
+
+
         //auth
         // Check if the user is signed in
         val currentUser = mAuth.currentUser
@@ -414,6 +462,10 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
 
         return mainView
     }
+    // Inserts the selected emoji into the input field
+    private fun commitText(text: String, length: Int) {
+        currentInputConnection?.commitText(text, length)
+    }
 
     private fun shareAudio() {
         val intent = Intent(this, ShareAudioActivity::class.java).apply {
@@ -422,106 +474,196 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
         startActivity(intent)
     }
 
-    private fun deleteAudioFile(fileName: String, context: Context): Boolean {
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            // For Android 10 and above, use MediaStore
+  // private fun deleteAudioFile(fileName: String, context: Context): Boolean {
+  //     return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+  //         // For Android 10 and above, use MediaStore
+  //         val resolver = context.contentResolver
+  //         val uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+  //         val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
+  //         val selectionArgs = arrayOf(fileName)
+
+  //         try {
+  //             val deletedRows = resolver.delete(uri, selection, selectionArgs)
+  //             if (deletedRows > 0) {
+  //                 Toast.makeText(context, "File deleted successfully.", Toast.LENGTH_SHORT).show()
+  //                 true
+  //             } else {
+  //                 Toast.makeText(context, "File not found in MediaStore.", Toast.LENGTH_SHORT).show()
+  //                 false
+  //             }
+  //         } catch (e: Exception) {
+  //             Toast.makeText(context, "Error deleting file: ${e.message}", Toast.LENGTH_SHORT).show()
+  //             false
+  //         }
+  //     } else {
+  //         // For Android 9 and below, use the File API
+  //         val destinationDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) // Scoped location for the app
+  //             ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) // Legacy storage
+  //         val destinationFile = File(destinationDir, fileName)
+
+  //         if (destinationFile.exists()) {
+  //             if (destinationFile.delete()) {
+  //                 Toast.makeText(context, "File deleted successfully.", Toast.LENGTH_SHORT).show()
+  //                 true
+  //             } else {
+  //                 Toast.makeText(context, "Failed to delete file.", Toast.LENGTH_SHORT).show()
+  //                 false
+  //             }
+  //         } else {
+  //             Toast.makeText(context, "File not found.", Toast.LENGTH_SHORT).show()
+  //             false
+  //         }
+  //     }
+  // }
+
+    private fun deleteAudioFile(context: Context, onComplete: (Boolean) -> Unit) {
+        val fileName = "downloaded_audio.mp3"
+        val file: File? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { File(it, fileName) }
+        } else {
+            @Suppress("DEPRECATION")
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.let { File(it, fileName) }
+        }
+
+        // ✅ 1️⃣ First, try to delete file directly
+        if (file != null && file.exists()) {
+            if (file.delete()) {
+                Toast.makeText(context, "File deleted successfully.", Toast.LENGTH_SHORT).show()
+                onComplete(true)
+                return
+            } else {
+                Toast.makeText(context, "Failed to delete file.", Toast.LENGTH_SHORT).show()
+                onComplete(false)
+                return
+            }
+        }
+
+        // ✅ 2️⃣ If file path deletion fails, try MediaStore (Android 10+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val resolver = context.contentResolver
             val uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
-
             val selection = "${MediaStore.Downloads.DISPLAY_NAME} = ?"
             val selectionArgs = arrayOf(fileName)
 
             try {
                 val deletedRows = resolver.delete(uri, selection, selectionArgs)
                 if (deletedRows > 0) {
-                  //  Toast.makeText(context, "File deleted successfully.", Toast.LENGTH_SHORT).show()
-                    true
+                    Toast.makeText(context, "File deleted successfully from MediaStore.", Toast.LENGTH_SHORT).show()
+                    onComplete(true)
                 } else {
-                  //  Toast.makeText(context, "File not found in MediaStore.", Toast.LENGTH_SHORT).show()
-                    false
+                    Toast.makeText(context, "File not found in MediaStore.", Toast.LENGTH_SHORT).show()
+                    onComplete(false)
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Error deleting file: ${e.message}", Toast.LENGTH_SHORT).show()
-                false
+                onComplete(false)
             }
         } else {
-            // For Android 9 and below, use the File API
-            val destinationDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) // Scoped location for the app
-                ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) // Legacy storage
-            val destinationFile = File(destinationDir, fileName)
-
-            if (destinationFile.exists()) {
-                if (destinationFile.delete()) {
-                  //  Toast.makeText(context, "File deleted successfully.", Toast.LENGTH_SHORT).show()
-                    true
-                } else {
-                 //   Toast.makeText(context, "Failed to delete file.", Toast.LENGTH_SHORT).show()
-                    false
-                }
-            } else {
-                Toast.makeText(context, "File not found.", Toast.LENGTH_SHORT).show()
-                false
-            }
+            Toast.makeText(context, "File not found.", Toast.LENGTH_SHORT).show()
+            onComplete(false)
         }
     }
 
+
+    // private fun downloadAudioFile(audioUrl: String, context: Context, onComplete: (Uri?) -> Unit) {
+ //     val fileName = "downloaded_audio.mp3"
+//
+ //     // Use the appropriate destination path for downloads
+ //     val downloadDir = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+ //         // Scoped storage for Android 10 and above
+ //         context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+ //     } else {
+ //         // Legacy storage for older Android versions
+ //         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+ //     }
+//
+ //     val filePath = File(downloadDir, fileName).absolutePath
+//
+ //     val request = DownloadManager.Request(Uri.parse(audioUrl)).apply {
+ //         setTitle("Downloading Audio")
+ //         setDescription("Audio is being downloaded...")
+ //         setDestinationUri(Uri.fromFile(File(filePath))) // Set the download destination
+ //         setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+ //     }
+//
+ //     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+ //     val downloadId = downloadManager.enqueue(request)
+//
+ //     // Register a BroadcastReceiver for download completion
+ //     val onDownloadComplete = object : BroadcastReceiver() {
+ //         override fun onReceive(context: Context, intent: Intent) {
+ //             val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+ //             if (id == downloadId) {
+ //                 // Query the DownloadManager for details
+ //                 val query = DownloadManager.Query().setFilterById(downloadId)
+ //                 val cursor = downloadManager.query(query)
+//
+ //                 if (cursor != null && cursor.moveToFirst()) {
+ //                     val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+ //                     val fileUri = cursor.getString(uriIndex)?.let { Uri.parse(it) }
+//
+ //                     cursor.close()
+ //                     onComplete(fileUri) // Pass the file URI to the callback
+ //                 } else {
+ //                     onComplete(null) // Failed to retrieve URI
+ //                     Toast.makeText(context, "Failed to retrieve download URI.", Toast.LENGTH_SHORT).show()
+ //                 }
+//
+ //                 // Unregister the receiver after completion
+ //                 context.unregisterReceiver(this)
+ //             }
+ //         }
+ //     }
+//
+ //     // Register the receiver with an exported flag for scoped storage compatibility
+ //     context.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+ //         RECEIVER_NOT_EXPORTED
+ //     )
+ // }
 
     private fun downloadAudioFile(audioUrl: String, context: Context, onComplete: (Uri?) -> Unit) {
         val fileName = "downloaded_audio.mp3"
-
-        // Use the appropriate destination path for downloads
-        val downloadDir = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            // Scoped storage for Android 10 and above
-            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        } else {
-            // Legacy storage for older Android versions
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        }
-
-        val filePath = File(downloadDir, fileName).absolutePath
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
         val request = DownloadManager.Request(Uri.parse(audioUrl)).apply {
             setTitle("Downloading Audio")
-            setDescription("Audio is being downloaded...")
-            setDestinationUri(Uri.fromFile(File(filePath))) // Set the download destination
+            setDescription("Downloading file...")
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        }
 
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val downloadId = downloadManager.enqueue(request)
-
-        // Register a BroadcastReceiver for download completion
-        val onDownloadComplete = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id == downloadId) {
-                    // Query the DownloadManager for details
-                    val query = DownloadManager.Query().setFilterById(downloadId)
-                    val cursor = downloadManager.query(query)
-
-                    if (cursor != null && cursor.moveToFirst()) {
-                        val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                        val fileUri = cursor.getString(uriIndex)?.let { Uri.parse(it) }
-
-                        cursor.close()
-                        onComplete(fileUri) // Pass the file URI to the callback
-                    } else {
-                        onComplete(null) // Failed to retrieve URI
-                        Toast.makeText(context, "Failed to retrieve download URI.", Toast.LENGTH_SHORT).show()
-                    }
-
-                    // Unregister the receiver after completion
-                    context.unregisterReceiver(this)
-                }
+            // ✅ Save in correct directory for all versions
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
+            } else {
+                @Suppress("DEPRECATION")
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
             }
         }
 
-        // Register the receiver with an exported flag for scoped storage compatibility
-        context.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-            RECEIVER_NOT_EXPORTED
-        )
-    }
+        val downloadId = downloadManager.enqueue(request)
 
+        // ✅ Poll for download status instead of using a BroadcastReceiver
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val query = DownloadManager.Query().setFilterById(downloadId)
+                downloadManager.query(query)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                        if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                            val uriString = cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI))
+                            onComplete(Uri.parse(uriString))
+                            return // ✅ Stop checking once download is complete
+                        } else if (status == DownloadManager.STATUS_FAILED) {
+                            onComplete(null) // ❌ Download failed
+                            return
+                        }
+                    }
+                }
+                handler.postDelayed(this, 1000) // ✅ Check every 1 second
+            }
+        }, 1000)
+    }
 
     private fun preparePayload(allText: String): String {
         // Directly access selectedItem assuming it's not null
@@ -979,6 +1121,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
             "SYMBOLS" -> switchToSymbols(mainView as ViewGroup)
             "PRIMARY" -> switchToPrimary(mainView as ViewGroup)
             "voice" -> switchTovoice(mainView as ViewGroup)
+            "EMOJI" ->switchToemoji(mainView as ViewGroup)
             "CAPS_LOCK" -> toggleCaps(v)
             "AI_CALL" -> aiCall(v)
             else -> handleRegularKey(v as TextView)
@@ -1041,6 +1184,34 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
         keyboardRoot.addView(symbolsKeyboard)
     }
 
+    private fun switchToemoji(keyboardRoot: ViewGroup) {
+        vibrate() // Provide haptic feedback
+
+        val currentActivity = activityTracker.getCurrentActivity()
+
+        // You can remove this condition if you want the toggle to happen regardless of the activity.
+        if (currentActivity != null && currentActivity.javaClass.name == "net.animetone.predictionSettings.PredictionSettingsListActivity") {
+            // Here, you can optionally add specific logic if the activity is PredictionSettingsListActivity
+            // If you don't want to change anything when in this activity, you can simply return early.
+            return
+        }
+
+        // Switch views between emoji and keyboard based on the current mode
+        if (isEmojiMode) {
+            // Switch back to keyboard
+            keyboardRoot.removeView(mainView.findViewById(R.id.keyboard))
+            keyboardRoot.addView(primaryKeyboard)
+        } else {
+            // Switch to emoji view
+            keyboardRoot.removeView(mainView.findViewById(R.id.keyboard))
+            keyboardRoot.addView(emojiview)
+        }
+
+        // Toggle the emoji mode
+        isEmojiMode = !isEmojiMode
+    }
+
+
 
 
     private fun switchTovoice(keyboardRoot: ViewGroup) {
@@ -1054,6 +1225,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
             keyboardRoot.addView(primaryKeyboard)
             voiceButton.setImageResource(R.drawable.baseline_mic_24) // Set voice mode icon
         } else {
+            isEmojiMode = false
             // Switch to voice generation
             keyboardRoot.removeView(mainView.findViewById(R.id.keyboard))
             keyboardRoot.addView(voicegen)
@@ -1066,6 +1238,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
 
     private fun switchToPrimary(keyboardRoot: ViewGroup) {
         vibrate()
+        isEmojiMode = false
         keyboardRoot.removeView(mainView.findViewById(R.id.keyboard))
         keyboardRoot.addView(primaryKeyboard)
     }

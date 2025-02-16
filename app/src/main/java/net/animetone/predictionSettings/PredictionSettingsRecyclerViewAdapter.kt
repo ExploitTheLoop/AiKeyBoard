@@ -1,9 +1,11 @@
 package net.animetone.predictionSettings
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
+import android.view.inputmethod.InputMethodManager
 import net.animetone.databinding.PredictionSettingCardBinding
 
 
@@ -42,6 +44,8 @@ class PredictionSettingsRecyclerViewAdapter(var predictionSettings: ArrayList<Pr
             binding.predictionCard.doOnTextChanged { text, start, before, count ->
                 predictionSetting.text = text.toString()
             }
+
+
         }
     }
 

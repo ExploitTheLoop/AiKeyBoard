@@ -35,6 +35,10 @@ class UpdateJobService : JobService() {
             if (task.isSuccessful) {
                 val newVersionCode = mFirebaseRemoteConfig.getString("new_version_code")
                 try {
+
+                    Log.d("appversion", getVersionCode().toString()) //returning 2
+                    Log.d("FirebaseVersion", newVersionCode) //returning 1
+
                     if (newVersionCode.toInt() > getVersionCode()) {
                         // Push a notification if a new update is available
                         Log.d("UpdateJobService", "New version available")
@@ -42,6 +46,7 @@ class UpdateJobService : JobService() {
                         showNotification("Update Available", "A new version of the app is available. Update now!")
                     } else {
                         UpdateStatusManager.setUpdateFound(false)
+
                         Log.d("UpdateJobService", "App is up to date")
                     }
                 } catch (e: NumberFormatException) {
