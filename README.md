@@ -78,7 +78,7 @@ Example User Document Structure:
 ```json
 {
   "credits": 300,
-  "email": "cam4paypal@gmail.com"
+  "email": "xyzabc@gmail.com"
 }
 ```
 
