@@ -19,7 +19,7 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
 - Uses **Murf API** for realistic voice synthesis.  
 - Download and share audio messages via **Messenger, Instagram, WhatsApp, and more**.  
 
-![TTS Feature](images/tts_feature.png)  
+![TTS Feature](Screenshots/TTS.PNG)  
 
 ### 😍 Emoji Support  
 - Seamlessly integrated emoji picker for expressive typing.  
