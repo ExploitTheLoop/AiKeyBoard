@@ -46,6 +46,64 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
 - **Llama AI** – AI-powered text assistance.  
 - **Murf API** – AI-powered Text-to-Speech conversion.  
 
+## 📃 Firebase Settings  
+
+The project integrates Firebase services, including **Google Authentication**, **Remote Config**, and **Firestore Database**.
+
+### 🔑 Google Authentication  
+- Users can log in using their Google accounts.
+- Secure authentication using Firebase Authentication.
+
+### ⚙️ Remote Config  
+- **Key**: `new_version_code`
+- **Data Type**: `string`
+- **Value**: `2`
+
+### 🔮 Firestore Database  
+The Firestore database stores user information in the `users` collection.
+
+#### Collection: `users`
+Each user is identified by a unique document ID.
+
+Example User Documents:
+```
+users
+  |➜ 3aGom8MaG8d52DUB7JFLKLPvsPD3
+  |➜ R6oJzHYwYSg32QaTiRkSuR8IqkX2
+  |➜ uLYFLdhAlRSlTgevA85tcCDccPN2
+  |➜ yOmJLSGmehUyv3hcNbaK4XXKU252
+```
+
+Example User Document Structure:
+```json
+{
+  "credits": 300,
+  "email": "cam4paypal@gmail.com"
+}
+```
+
+### ⚖️ Firestore Security Rules  
+```firestore-rules
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Allow update only if the new credit value is lower than the current value
+      allow update: if request.auth != null && request.auth.uid == userId &&
+        request.resource.data.credits < resource.data.credits;
+
+      // Allow creating a user document only if it does not exist and credits <= 300
+      allow create: if request.auth != null && request.auth.uid == userId &&
+        !exists(/databases/$(database)/documents/users/$(userId)) &&
+        request.resource.data.credits <= 300;
+    }
+  }
+}
+```
+
 ## 📜 License  
 This project is open-source and available under the **MIT License**.  
 
