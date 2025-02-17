@@ -43,8 +43,8 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
 
 ## 🛠️ Built With  
 - **[KeyboardGPT](https://github.com/bOsowski/KeyboardGPT)** – Base for AI integration.  
-- **Llama AI** – AI-powered text assistance.  
-- **Murf API** – AI-powered Text-to-Speech conversion.  
+- **[Lama Ai](https://murf.ai/api)** – AI-powered text assistance.  
+- **[Murf Api](https://murf.ai/api)** – AI-powered Text-to-Speech conversion.  
 
 ## 📃 Firebase Settings  
 
