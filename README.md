@@ -5,6 +5,9 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
 ## ✨ Features  
 
 ### 🔥 AI-Powered Assistant  
+
+![AI Assistant Prompts](Screenshots/dashboard.PNG)  
+
 - Modify and enhance typed text with AI.  
 - Custom prompts like:  
   - ✅ **Correct my English**  
@@ -12,7 +15,7 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
   - ✅ **Rewrite in a professional tone**  
 - Powered by **Llama AI** for smart suggestions.  
 
-![AI Assistant Feature](images/ai_assistant.png)  
+![AI Assistant Feature](Screenshots/keyboard.PNG)  
 
 ### 🎙️ Text-to-Speech (TTS) with AI Voices  
 - Convert typed sentences into **high-quality AI-generated speech**.  
@@ -24,7 +27,7 @@ An advanced AI-powered keyboard featuring an integrated AI assistant, Text-to-Sp
 ### 😍 Emoji Support  
 - Seamlessly integrated emoji picker for expressive typing.  
 
-![Emoji Feature](images/emoji_support.png)  
+![Emoji Feature](Screenshots/smiley.PNG)  
 
 ### ⚡ Smooth Typing Experience  
 - Optimized touch response for faster and more accurate typing.  
