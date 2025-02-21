@@ -80,7 +80,7 @@ class KeyboardService : View.OnClickListener, InputMethodService() {
     private val groqapikey = "Bearer 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" // Replace with your actual API key
     private val groqapiurl = "https://api.groq.com/openai/v1/chat/completions"
 
-    private val murfapikey = "ap2_79b814cd-518e-4152-9484-ee18c981e69d"
+    private val murfapikey = "ap2_79b814cd-518e-4152-9484-ee18c981e69d" // Replace with your actual API key
     private val murfapiurl = "https://api.murf.ai/v1/speech/generate"
     private var audioUrl: String? = null
     private var capsOn = false
