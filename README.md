@@ -107,6 +107,10 @@ service cloud.firestore {
 ## 📜 License  
 This project is open-source and available under the **MIT License**.  
 
+⚠️ **Warning:**  
+For the **release build** in Android Studio, encryption has been added.  
+**Remove ProGuard rules**, or your Google authentication fingerprint will change, and authentication will not work. 
+
 ## 🌎 Connect With Us  
 For feedback, contributions, or suggestions, feel free to reach out or create an issue! 🚀  
 
